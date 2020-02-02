@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 project(zboss C)
 
+# only works in 32 bit mode
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+
 list(APPEND ZBOSS_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/zdo" "${PROJECT_SOURCE_DIR}/osif/include")
 set(ZBOSS_INCLUDE_DIRS ${ZBOSS_INCLUDE_DIRS} PARENT_SCOPE)
 include_directories(${ZBOSS_INCLUDE_DIRS})
@@ -14,9 +17,12 @@ else()
     message(FATAL_ERROR "only supports GCC so far!")
 endif()
 
+set(ZBOSS_TRACE_FLAGS "-DZB_TRACE_LEVEL=4 -DZB_TRACE_MASK=-1" PARENT_SCOPE)
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     message("DEBUG Build")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DZB_TRACE_LEVEL=4 -DZB_TRACE_MASK=-1 -DDEBUG")
+    add_definitions(-DZB_TRACE_LEVEL)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ZBOSS_TRACE_FLAGS} -DDEBUG")
 endif()
 
 #message(STATUS ${CMAKE_C_FLAGS})

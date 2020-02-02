@@ -11,5 +11,9 @@ include_directories(${LIBXML2_INCLUDE_DIR})
 
 file(GLOB src ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR}/source/*.cpp)
 
+
 add_executable(network_simulator ${src})
 target_link_libraries(network_simulator ${zboss_components} ${LIBXML2_LIBRARIES})
+
+set_target_properties(network_simulator PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${SmartHomeSim_SOURCE_DIR}/bin)

@@ -7,10 +7,6 @@ set(CMAKE_CXX_STANDARD 14)
 add_definitions(-DUNIX)
 add_definitions(-DZB_PLATFORM_LINUX_PC32)
 
-# only works in 32 bit mode
-set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -m32")
-#set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -m32")
-
 set(SHS_BINARY_DIR "${PROJECT_SOURCE_DIR}/lib")
 
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SHS_BINARY_DIR})
@@ -26,6 +22,7 @@ if(BUILD_TEST)
     add_subdirectory(test)
 endif()
 
+add_subdirectory(zboss-dump-converter)
 add_subdirectory(zboss-network-sim)
 
 add_executable(shs_test source/test-main.cpp)
