@@ -1,0 +1,4 @@
+*.dump
+ns.txt
+*.log
+*.pcap
