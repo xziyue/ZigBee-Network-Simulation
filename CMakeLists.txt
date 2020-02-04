@@ -15,6 +15,10 @@ set(SHS_BINARY_DIR "${PROJECT_SOURCE_DIR}/lib")
 
 add_subdirectory(zboss)
 
+add_subdirectory(zboss-dump-converter)
+add_subdirectory(zboss-network-sim)
+add_subdirectory(dump-converter)
+
 set(BUILD_TEST TRUE)
 
 if(BUILD_TEST)
@@ -22,8 +26,7 @@ if(BUILD_TEST)
     add_subdirectory(test)
 endif()
 
-add_subdirectory(zboss-dump-converter)
-add_subdirectory(zboss-network-sim)
+
 
 add_executable(shs_test source/test-main.cpp)
 

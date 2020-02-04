@@ -118,8 +118,8 @@ killch
 
 
 set - `ls *dump`
-../../bin/dump_converter -ns $1 c.pcap
-../../bin/dump_converter -ns $2 ze.pcap
+../../bin/new_dump_converter -ns $1 c.pcap
+../../bin/new_dump_converter -ns $2 ze.pcap
 
 echo 'Now verify traffic dump, please!'
 

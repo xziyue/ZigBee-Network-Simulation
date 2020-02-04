@@ -5,3 +5,5 @@ project(sms-test C)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 
 add_subdirectory(zdo_startup)
+
+add_dependencies(new_dump_converter network_simulator)
