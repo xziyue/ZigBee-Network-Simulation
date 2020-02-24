@@ -3,6 +3,7 @@
 ## Development Stages
 - [x] Port ZBOSS to CMake
 - [x] Test `zdo_startup` and fix Wireshark compatibility
+- [ ] Migrate the project to 64 bit
 
 ## Platform Requirements
 - Ubuntu
