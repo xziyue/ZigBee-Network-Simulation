@@ -23,6 +23,7 @@ set_target_properties(zdo_start_ze PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SmartHomeSim_SOURCE_DIR}/bin)
 
 add_custom_target(zdo_startup)
-add_dependencies(zdo_startup zdo_start_zc zdo_start_ze zdo_start_zr)
+add_dependencies(zdo_startup zdo_start_zc zdo_start_ze zdo_start_zr
+        new_dump_converter network_simulator)
 
 

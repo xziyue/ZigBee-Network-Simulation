@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(zboss C)
 
 # only works in 32 bit mode
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 
 list(APPEND ZBOSS_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/zdo" "${PROJECT_SOURCE_DIR}/osif/include")
 set(ZBOSS_INCLUDE_DIRS ${ZBOSS_INCLUDE_DIRS} PARENT_SCOPE)
