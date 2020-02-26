@@ -8,13 +8,28 @@ list(APPEND ZBOSS_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE
 set(ZBOSS_INCLUDE_DIRS ${ZBOSS_INCLUDE_DIRS} PARENT_SCOPE)
 include_directories(${ZBOSS_INCLUDE_DIRS})
 
-if(CMAKE_COMPILER_IS_GNUCC)
+message(STATUS "C compiler: ${CMAKE_C_COMPILER_ID}")
+message(STATUS "CXX compiler: ${CMAKE_CXX_COMPILER_ID}")
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    message(STATUS "GCC detected")
     set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pipe -std=gnu99 -W -Wall -Wpointer-arith -Wcast-align \
  -Wno-format-zero-length  -Wno-format-zero-length -Wno-int-to-pointer-cast \
  -Wno-pointer-to-int-cast -Wno-unused-value -Wno-unused-local-typedefs \
  -Wno-unused-but-set-variable -Wno-shift-negative-value")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message(STATUS "CLANG detected")
+    set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pipe -std=gnu99 -W -Wall -Wno-cast-align\
+        -Wno-address-of-packed-member -Wno-unused-local-typedef\
+        -Wno-shift-negative-value -Wno-empty-body -Wno-array-bounds")
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        # try to disable error message from RANLIB
+        message(STATUS "Mac OS detected")
+        SET(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+        SET(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+    endif()
 else()
-    message(FATAL_ERROR "only supports GCC so far!")
+    message(FATAL_ERROR "the compiler is not supported!")
 endif()
 
 set(ZBOSS_TRACE_FLAGS "-DZB_TRACE_LEVEL=4 -DZB_TRACE_MASK=-1" PARENT_SCOPE)
