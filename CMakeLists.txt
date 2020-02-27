@@ -13,11 +13,11 @@ set(SHS_BINARY_DIR "${PROJECT_SOURCE_DIR}/lib")
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SHS_BINARY_DIR})
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SHS_BINARY_DIR})
 
-add_subdirectory(zboss)
+add_subdirectory(targets/zboss)
 
-add_subdirectory(zboss-dump-converter)
-add_subdirectory(zboss-network-sim)
-add_subdirectory(dump-converter)
+add_subdirectory(targets/zboss-dump-converter)
+add_subdirectory(targets/zboss-network-sim)
+add_subdirectory(targets/dump-converter)
 
 set(BUILD_TEST TRUE)
 
