@@ -1,5 +1,7 @@
 # ZigBee Network Simulation
 
+![zigbee](./doc/zigbee.png)
+
 ## Development Stages
 - [x] Port ZBOSS to CMake
 - [x] Test `zdo_startup` and fix Wireshark compatibility
