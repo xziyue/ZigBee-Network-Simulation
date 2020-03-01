@@ -53,7 +53,9 @@ PURPOSE: Test for ZC application written using ZDO.
 #include "zb_aps.h"
 #include "zb_zdo.h"
 
-
+#ifndef ZB_TRANSPORT_LINUX_PIPES
+#error "only runs in Linux pipe mode"
+#endif
 
 /*! \addtogroup ZB_TESTS */
 /*! @{ */

@@ -55,6 +55,10 @@ PURPOSE:
 #include "zb_secur.h"
 #include "zb_secur_api.h"
 
+#ifndef ZB_TRANSPORT_LINUX_PIPES
+#error "only runs in Linux pipe mode"
+#endif
+
 #ifndef ZB_ROUTER_ROLE
 #error Router role is not compiled!
 #endif

@@ -116,12 +116,19 @@ Some additional run-time checks.
  */
 #define ZB_LITTLE_ENDIAN
 
+
+#if defined(ZB_TRANSPORT_USE_LINUX_PIPES) && defined(ZB_TRANSPORT_USE_LINUX_WPAN)
+#error "cannot turn on both transport simulation types"
+#endif
+
+#if defined(ZB_TRANSPORT_USE_LINUX_PIPES)
 /* Hardcode transport now. In the future there will be real transiver in Linux,
  * its connection can differ. */
 /**
    If defined, transport is named pipes in Linux
  */
 #define ZB_TRANSPORT_LINUX_PIPES
+
 /**
    Linux named pipes transport timeout: wait in select() for this number of seconds
  */
@@ -130,6 +137,16 @@ Some additional run-time checks.
    If defined, this is special build to work with ns-3 network simulator.
  */
 #define ZB_NS_BUILD
+
+#elif defined(ZB_TRANSPORT_USE_LINUX_WPAN)
+
+#define ZB_NS_BUILD
+
+#else
+#error "please specify a transport layer build type"
+
+#endif
+
 /**
    If defined (for NS build),  ack is sent and checked manually
 */

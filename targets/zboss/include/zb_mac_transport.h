@@ -123,11 +123,21 @@ zb_mac_transport_hdr_t;
 
    @return nothing.
  */
+
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+void zb_mac_transport_init(zb_char_t *wpanName);
+#else
 #ifndef ZB_TRANSPORT_LINUX_SPIDEV
 void zb_mac_transport_init(zb_char_t *rpipe_path, zb_char_t *wpipe_path) ZB_SDCC_REENTRANT;
 #else
 void zb_mac_transport_init() ZB_SDCC_REENTRANT;
 #endif
+
+
+#endif
+
+
 #else
 void zb_mac_transport_init() ZB_SDCC_REENTRANT;
 #endif

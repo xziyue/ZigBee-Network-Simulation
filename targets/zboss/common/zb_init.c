@@ -74,15 +74,24 @@ ZB_SDCC_XDATA zb_64bit_addr_t g_zero_addr={0,0,0,0,0,0,0,0};
 
 
 #ifdef ZB_INIT_HAS_ARGS
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+// different zb_init call if using WPAN
+void zb_init(zb_char_t *trace_comment, zb_char_t *wpanName) ZB_CALLBACK
+#else
 void zb_init(zb_char_t *trace_comment, zb_char_t *rx_pipe, zb_char_t *tx_pipe) ZB_CALLBACK
+#endif
+
 #else
 void zb_init() ZB_CALLBACK
 #endif
 {
 #ifdef ZB_INIT_HAS_ARGS
+#ifndef ZB_TRANSPORT_USE_LINUX_WPAN
   ZVUNUSED(trace_comment);
   ZVUNUSED(rx_pipe);
   ZVUNUSED(tx_pipe);
+#endif
 #endif
   ZB_MEMSET(&g_zb, 0, sizeof(zb_globals_t));
   ZB_MEMSET((void*)&g_izb, 0, sizeof(zb_intr_globals_t));
@@ -91,10 +100,17 @@ void zb_init() ZB_CALLBACK
 #ifdef ZB_INIT_HAS_ARGS
   TRACE_INIT(trace_comment);
 
+#ifdef ZB_TRANSPORT_LINUX_PIPES
   /* special trick for ns build run on 8051 simulator: get node number from the
    * rx pipe name  */
   /* set defaults, then update it from nvram */
   zb_ib_set_defaults(rx_pipe);
+#endif
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+  zb_ib_set_defaults();
+#endif
+
 #else
   TRACE_INIT("");
   /* special trick for ns build run on 8051 simulator: get node number from the
@@ -108,10 +124,18 @@ void zb_init() ZB_CALLBACK
   zb_init_buffers();
 
 #ifndef ZB8051
+
 #ifdef ZB_TRANSPORT_LINUX_SPIDEV
   zb_mac_transport_init();
 #else
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+  // wpan MAC initialization
+  zb_mac_transport_init(wpanName);
+#else
   zb_mac_transport_init(rx_pipe, tx_pipe);
+#endif
+
 #endif
 #elif defined ZB_NS_BUILD
   zb_mac_transport_init();

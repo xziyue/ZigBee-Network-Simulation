@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(sms-test-zdo-startup C)
+project(sms-test-zdo-secur-startup C)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ZBOSS_TRACE_FLAGS}")
 

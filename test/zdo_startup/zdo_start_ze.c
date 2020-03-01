@@ -46,13 +46,18 @@
 PURPOSE: Test for ZC application written using ZDO.
 */
 
-
 #include "zb_common.h"
 #include "zb_scheduler.h"
 #include "zb_bufpool.h"
 #include "zb_nwk.h"
 #include "zb_aps.h"
 #include "zb_zdo.h"
+
+
+#ifndef ZB_TRANSPORT_LINUX_PIPES
+#error "only runs in Linux pipe mode"
+#endif
+
 
 #ifndef ZB_ED_ROLE
 #error define ZB_ED_ROLE to compile ze tests

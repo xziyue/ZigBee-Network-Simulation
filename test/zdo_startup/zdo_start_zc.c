@@ -53,6 +53,10 @@ PURPOSE: Test for ZC application written using ZDO.
 #include "zb_aps.h"
 #include "zb_zdo.h"
 
+#ifndef ZB_TRANSPORT_LINUX_PIPES
+#error "only runs in Linux pipe mode"
+#endif
+
 #define ZB_TEST_DUMMY_DATA_SIZE 10
 
 zb_ieee_addr_t g_zc_addr = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa};
@@ -96,8 +100,11 @@ MAIN()
 #ifdef ZB_SECURITY
   ZG->nwk.nib.security_level = 0;
 #endif
+
+#ifdef ZB_TRANSPORT_LINUX_PIPES
   ZB_IEEE_ADDR_COPY(ZB_PIB_EXTENDED_ADDRESS(), &g_zc_addr);
   MAC_PIB().mac_pan_id = 0x1aaa;
+#endif
 
   /* let's always be coordinator */
   ZB_AIB().aps_designated_coordinator = 1;

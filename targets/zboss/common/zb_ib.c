@@ -58,10 +58,15 @@ PURPOSE: IB save/load/set defaults
 #include <ctype.h>
 #endif
 
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+
+#endif
+
 
 /*! \addtogroup ZB_BASE */
 /*! @{ */
 
+#ifdef ZB_TRANSPORT_LINUX_PIPES
 
 void zb_ib_set_defaults(zb_char_t *rx_pipe) ZB_CALLBACK
 {
@@ -132,7 +137,17 @@ void zb_ib_set_defaults(zb_char_t *rx_pipe) ZB_CALLBACK
   ZG->nwk.nib.max_children = ZB_DEFAULT_MAX_CHILDREN;
 #endif
   ZB_NIB_DEVICE_TYPE() = ZB_NWK_DEVICE_TYPE_NONE;
+
 }
+
+#endif
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+void zb_ib_set_defaults() ZB_CALLBACK
+{
+
+}
+#endif
 
 
 void zb_ib_load() ZB_CALLBACK

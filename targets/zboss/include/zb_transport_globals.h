@@ -57,6 +57,11 @@ PURPOSE: UART transport globals
 #include "zb_transport_8051.h"
 #endif
 
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+#include "zb_transport_linux_wpan.h"
+#endif
+
 #ifdef ZB_TRANSPORT_LINUX_PIPES
 #include "zb_transport_linux_pipes.h"
 #endif

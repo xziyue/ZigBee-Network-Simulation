@@ -85,8 +85,19 @@ PURPOSE: Common include file for ZigBee
  */
 
 #ifdef ZB_INIT_HAS_ARGS
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+
+void zb_init(zb_char_t* trace_comment, zb_char_t *wpanName);
+#define ZB_INIT(a,b) zb_init((zb_char_t *)a, (zb_char_t *)b)
+
+#else
+
 void zb_init(zb_char_t *trace_comment, zb_char_t *rx_pipe, zb_char_t *tx_pipe) ZB_CALLBACK;
 #define ZB_INIT(a,b,c) zb_init((zb_char_t *)a, (zb_char_t *)b, (zb_char_t *)c)
+
+#endif
+
 #else
 void zb_init()ZB_CALLBACK;
 #define ZB_INIT(a,b,c) zb_init()
@@ -105,7 +116,7 @@ void zb_handle_parms_before_start();
  */
 void zb_ib_load() ZB_CALLBACK;
 
-
+#ifdef ZB_TRANSPORT_LINUX_PIPES
 /**
    Set Informational Bases refaults.
 
@@ -113,7 +124,11 @@ void zb_ib_load() ZB_CALLBACK;
                             in 8051 simulator)
  */
 void zb_ib_set_defaults(zb_char_t *rx_pipe) ZB_CALLBACK;
+#endif
 
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+void zb_ib_set_defaults() ZB_CALLBACK;
+#endif
 
 /**
    Save Informational Bases to NVRAM or other persistent storage
