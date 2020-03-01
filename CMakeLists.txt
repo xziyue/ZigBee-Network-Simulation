@@ -8,12 +8,17 @@ add_definitions(-DUNIX)
 add_definitions(-DZB_PLATFORM_LINUX_PC32)
 
 # use linux pipes
-#add_definitions(-DZB_TRANSPORT_USE_LINUX_PIPES)
+add_definitions(-DZB_TRANSPORT_USE_LINUX_PIPES)
 
 # use linux wpan
-add_definitions(-DZB_TRANSPORT_USE_LINUX_WPAN)
+#add_definitions(-DZB_TRANSPORT_USE_LINUX_WPAN)
 
 set(SHS_BINARY_DIR "${PROJECT_SOURCE_DIR}/lib")
+
+include_directories(include)
+
+# settings from pipe library
+add_library(settings_from_pipe source/settings_from_pipe.cpp include/settings_from_pipe.h)
 
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SHS_BINARY_DIR})
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SHS_BINARY_DIR})
@@ -32,14 +37,14 @@ if(BUILD_TEST)
     add_subdirectory(test)
 endif()
 
-add_executable(shs_test source/test-main.cpp)
+
 add_executable(test_802154_socket source/test_802154_socket.c)
-
-set_target_properties(shs_test PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${SmartHomeSim_SOURCE_DIR}/bin)
-
 set_target_properties(test_802154_socket PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SmartHomeSim_SOURCE_DIR}/bin)
 
+add_executable(test_settings_from_pipe source/test_settings_from_pipe.c)
+set_target_properties(test_settings_from_pipe PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${SmartHomeSim_SOURCE_DIR}/bin)
+target_link_libraries(test_settings_from_pipe settings_from_pipe)
 
 

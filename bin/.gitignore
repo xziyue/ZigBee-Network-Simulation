@@ -1,3 +1,4 @@
 *
 *.*
 !.gitignore
+!settings_from_pipe_tester.py
