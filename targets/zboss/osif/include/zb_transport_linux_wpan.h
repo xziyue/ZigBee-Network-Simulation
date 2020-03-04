@@ -17,6 +17,8 @@
 
 #ifndef ETH_P_IEEE802154
 #define ETH_P_IEEE802154 0x00F6
+#endif
+
 
 typedef struct zb_io_ctx_s
 {
@@ -39,7 +41,6 @@ typedef struct zb_io_ctx_s
 zb_io_ctx_t;
 
 
-
 #define ZB_TIMER_INIT() /* nothing to do here */
 
 #define ZB_CHECK_TIMER_IS_ON() 1 /* always on in linux */
@@ -52,7 +53,5 @@ void zb_mac_wait_for_ext_event();
 #define ZB_GO_IDLE()
 #define CHECK_INT_N_TIMER()
 #define ZB_CORE_IDLE()
-
-#endif
 
 #endif
