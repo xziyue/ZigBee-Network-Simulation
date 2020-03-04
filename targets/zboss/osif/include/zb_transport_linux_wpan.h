@@ -28,6 +28,10 @@ typedef struct zb_io_ctx_s
     zb_uint16_t int_counter;
 
     int sd; // socket number
+
+    int timeout;
+    int time_delta_rest_ms;
+    int time_delta_rest_us;
 }
 zb_io_ctx_t;
 

@@ -8,10 +8,10 @@ add_definitions(-DUNIX)
 add_definitions(-DZB_PLATFORM_LINUX_PC32)
 
 # use linux pipes
-add_definitions(-DZB_TRANSPORT_USE_LINUX_PIPES)
+#add_definitions(-DZB_TRANSPORT_USE_LINUX_PIPES)
 
 # use linux wpan
-#add_definitions(-DZB_TRANSPORT_USE_LINUX_WPAN)
+add_definitions(-DZB_TRANSPORT_USE_LINUX_WPAN)
 
 set(SHS_BINARY_DIR "${PROJECT_SOURCE_DIR}/lib")
 

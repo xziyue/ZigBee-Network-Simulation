@@ -104,4 +104,22 @@ _eightbytes get_ieee_addr_from_buffer(){
     return ret;
 }
 
+unsigned short get_pan_id_from_buffer(){
+    unsigned short ret;
 
+    auto itemString = string{get_item_buffer()};
+    if(itemString[0] != '0'){
+        throw runtime_error{"invalid PAN id: first char must be \'0\'"};
+    }
+    if(!(itemString[1] == 'x' or itemString[1] == 'X')){
+        throw runtime_error{"invalid PAN id: second char must be \'x\' or \'X\'"};
+    }
+    if(itemString.size() != 6){
+        throw runtime_error{"invalid PAN id: length of PAN id string must be 6"};
+    }
+
+    auto panStr = itemString.substr(2);
+    ret = stoul(panStr, nullptr, 16);
+
+    return ret;
+}

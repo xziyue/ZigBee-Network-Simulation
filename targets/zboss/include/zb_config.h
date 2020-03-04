@@ -141,6 +141,9 @@ Some additional run-time checks.
 #elif defined(ZB_TRANSPORT_USE_LINUX_WPAN)
 
 #define ZB_NS_BUILD
+// close traffic dump functionality
+#undef ZB_TRAFFIC_DUMP_ON
+
 
 #else
 #error "please specify a transport layer build type"

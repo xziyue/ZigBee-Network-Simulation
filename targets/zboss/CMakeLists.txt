@@ -16,7 +16,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pipe -std=gnu99 -W -Wall -Wpointer-arith -Wcast-align \
  -Wno-format-zero-length  -Wno-format-zero-length -Wno-int-to-pointer-cast \
  -Wno-pointer-to-int-cast -Wno-unused-value -Wno-unused-local-typedefs \
- -Wno-unused-but-set-variable -Wno-shift-negative-value")
+ -Wno-unused-but-set-variable -Wno-shift-negative-value -Wunused-parameter")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(STATUS "CLANG detected")
     set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pipe -std=gnu99 -W -Wall -Wno-cast-align\

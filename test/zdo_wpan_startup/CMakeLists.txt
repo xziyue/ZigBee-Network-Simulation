@@ -8,11 +8,11 @@ include_directories(${ZBOSS_INCLUDE_DIRS})
 add_executable(zdo_wpan_start_zc zdo_wpan_start_zc.c)
 add_executable(zdo_wpan_start_ze zdo_wpan_start_ze.c)
 add_executable(zdo_wpan_start_zr zdo_wpan_start_zr.c)
-target_link_libraries(zdo_wpan_start_zc ${zboss_components})
-target_link_libraries(zdo_wpan_start_zr ${zboss_components})
+target_link_libraries(zdo_wpan_start_zc ${zboss_components} settings_from_pipe)
+target_link_libraries(zdo_wpan_start_zr ${zboss_components} settings_from_pipe)
 
 target_compile_definitions(zdo_wpan_start_ze PRIVATE ZB_ED_ROLE)
-target_link_libraries(zdo_wpan_start_ze ${zboss_components_ed})
+target_link_libraries(zdo_wpan_start_ze ${zboss_components_ed} settings_from_pipe)
 
 set_target_properties(zdo_wpan_start_zc PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SmartHomeSim_SOURCE_DIR}/bin)

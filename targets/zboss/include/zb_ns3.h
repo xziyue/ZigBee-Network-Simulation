@@ -59,10 +59,20 @@ zb_ret_t zb_mac_ns_send_packet(zb_buf_t *buf, zb_bool_t release_buf) ZB_SDCC_REE
 
 #define ZB_TRANS_SEND_COMMAND(hdr_len, buf) zb_mac_ns_send_packet(buf, 0)
 
+#ifdef ZB_TRANSPORT_LINUX_PIPES
 zb_ret_t read_from_pipe();
 
 #define ZB_TRANS_RECV_PACKET(buf) \
   ( zb_mac_transport_start_recv((buf), 0), read_from_pipe() )
+#endif
+
+
+#ifdef ZB_TRANSPORT_USE_LINUX_WPAN
+
+zb_ret_t read_from_wpan();
+#define ZB_TRANS_RECV_PACKET(buf) ( zb_mac_transport_start_recv((buf), 0), read_from_wpan() )
+
+#endif
 
 
 #define ZB_TRANSCEIVER_INIT()

@@ -359,6 +359,7 @@ void zb_mac_parse_recv_data(zb_uint8_t param) ZB_CALLBACK
   zb_uint8_t *cmd_ptr;
   zb_mac_mhr_t mhr;
   zb_buf_t *buf = ZB_BUF_FROM_REF(param);
+
 #ifdef ZB_MAC_TESTING_MODE
   zb_uint8_t mhr_len;
 #endif

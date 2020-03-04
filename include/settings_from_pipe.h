@@ -36,4 +36,6 @@ typedef struct _d_eightbytes{
 // parse the buffer as ieee device address
 CPPEXTERN _eightbytes get_ieee_addr_from_buffer();
 
+CPPEXTERN unsigned short get_pan_id_from_buffer();
+
 #endif
