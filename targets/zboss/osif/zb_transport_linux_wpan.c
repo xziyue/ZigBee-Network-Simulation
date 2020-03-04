@@ -106,6 +106,11 @@ zb_ret_t read_from_wpan(){
             ZB_ABORT;
         }
 
+        if(bts_read < 0){
+            perror("error when reading from socket");
+            ZB_ABORT;
+        }
+
         // set the first byte to packet length
         *(unsigned char*)ZB_BUF_BEGIN(ZIG->ioctx.recv_data_buf) = (unsigned char)bts_read;
 
@@ -134,6 +139,42 @@ zb_ret_t read_from_wpan(){
     return ret;
 }
 
+zb_ret_t write_to_wpan()
+{
+    zb_ret_t ret = 0;
+    int bts_written = 0;
+
+    TRACE_MSG(TRACE_MAC1, ">>write_to_wpan", (FMT__0));
+
+    if ( ZIG->ioctx.send_data_buf )
+    {
+        // send data thru socket
+        bts_written = send(ZIG->ioctx.sd, ZB_BUF_BEGIN(ZIG->ioctx.send_data_buf), ZB_BUF_LEN(ZIG->ioctx.send_data_buf), 0);
+
+        if(bts_written < 0){
+            perror("error when reading from socket");
+            ZB_ABORT;
+
+        }
+        if(bts_written != ZB_BUF_LEN(ZIG->ioctx.send_data_buf)){
+            printf("%s\n", "unable to send the entire packet");
+            ZB_ABORT;
+        }
+
+        // notify mac
+        TRACE_MSG(TRACE_MAC1, "out buffer is sent", (FMT__0));
+        ZB_SET_SEND_STATUS(ZB_SEND_FINISHED);
+        ZIG->ioctx.send_data_buf = NULL;
+    }
+
+    if ( ret >= 0 && bts_written )
+    {
+        ret = bts_written;
+    }
+    TRACE_MSG(TRACE_MAC1, "<<write_to_wpan %d", (FMT__D, bts_written));
+    return ret;
+}
+
 
 void zb_mac_wait_for_ext_event()
 {
@@ -144,7 +185,7 @@ void zb_mac_wait_for_ext_event()
 
     /* send data to wpan if we have smth to write. If written something, no need
      * to read for recv - continue processing in the main loop. */
-    if ((done_smsng = write_to_pipe()) == 0 && ZIG->ioctx.sd != -1 )
+    if ((done_smsng = write_to_wpan()) == 0 && ZIG->ioctx.sd != -1 )
     {
         struct timeval tv;
         static struct timeval start_t; /* static to take into account time we spent
@@ -153,6 +194,8 @@ void zb_mac_wait_for_ext_event()
         int maxfd;
         zb_time_t tmo = (zb_time_t)~0;
 
+
+        // see if there is something to read...
 
         /* fill strucutes for select */
         FD_ZERO(&read_set);
@@ -241,7 +284,9 @@ void zb_mac_wait_for_ext_event()
                     ZIG->ioctx.rpipe = open(ZIG->ioctx.rpipe_path, O_RDONLY | O_NONBLOCK);
                     TRACE_MSG(TRACE_MAC1, "open rpipe %d. %s", (FMT__D, ZIG->ioctx.rpipe, strerror(errno)));
                      */
+                    printf("%s\n", "error: received 0 bytes!");
                     TRACE_MSG(TRACE_MAC1, "read_from_wpan returns 0 bytes", (FMT__0));
+                    ZB_ABORT;
                 }
             }
             else if ( ret == 0 )
