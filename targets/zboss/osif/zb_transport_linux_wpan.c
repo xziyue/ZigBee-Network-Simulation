@@ -9,6 +9,7 @@
 #include "zb_nwk.h"
 #include <errno.h>
 
+
 void zb_mac_transport_init(zb_char_t *wpanName){
     int ret, sd;
     struct sockaddr_ll sll;
@@ -21,7 +22,7 @@ void zb_mac_transport_init(zb_char_t *wpanName){
     sd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_IEEE802154));
     if (sd < 0) {
         perror("socket");
-        ZB_ABORT;
+        WPAN_ABORT;
     }
 
     /* Using a monitor interface here results in a bad FCS and two missing
@@ -31,7 +32,7 @@ void zb_mac_transport_init(zb_char_t *wpanName){
     if (ret < 0) {
         perror("ioctl");
         close(sd);
-        ZB_ABORT;
+        WPAN_ABORT;
     }
 
     /* Prepare destination socket address struct */
@@ -45,7 +46,7 @@ void zb_mac_transport_init(zb_char_t *wpanName){
     if (ret < 0) {
         perror("bind");
         close(sd);
-        ZB_ABORT;
+        WPAN_ABORT;
     }
 
     // socket initialization finished
@@ -103,12 +104,12 @@ zb_ret_t read_from_wpan(){
         bts_read = recv(ZIG->ioctx.sd, ZB_BUF_BEGIN(ZIG->ioctx.recv_data_buf) + 1, MAX_PACKET_LEN, 0);
         if(bts_read > MAX_PACKET_LEN){
             printf("%s\n", "packet received from WPAN is larger than MAX_PACKET_LEN");
-            ZB_ABORT;
+            WPAN_ABORT;
         }
 
         if(bts_read < 0){
             perror("error when reading from socket");
-            ZB_ABORT;
+            WPAN_ABORT;
         }
 
         // set the first byte to packet length
@@ -139,6 +140,7 @@ zb_ret_t read_from_wpan(){
     return ret;
 }
 
+
 zb_ret_t write_to_wpan()
 {
     zb_ret_t ret = 0;
@@ -153,12 +155,12 @@ zb_ret_t write_to_wpan()
 
         if(bts_written < 0){
             perror("error when reading from socket");
-            ZB_ABORT;
+            WPAN_ABORT;
 
         }
         if(bts_written != ZB_BUF_LEN(ZIG->ioctx.send_data_buf)){
             printf("%s\n", "unable to send the entire packet");
-            ZB_ABORT;
+            WPAN_ABORT;
         }
 
         // notify mac
@@ -175,6 +177,29 @@ zb_ret_t write_to_wpan()
     return ret;
 }
 
+void zb_mac_transport_put_data(zb_buf_t *buf){
+    TRACE_MSG(TRACE_MAC1, ">>zb_mac_put_data buf %p", (FMT__P, buf));
+
+    /* check if we already have buffer for output */
+    if ( ZIG->ioctx.send_data_buf )
+    {
+        TRACE_MSG(TRACE_ERROR, "output buffer is already in progress", (FMT__0));
+        ZB_ASSERT(0);
+    }
+    else
+    {
+        ZIG->ioctx.send_data_buf = buf;
+
+        ZB_DUMP_OUTGOING_DATA(buf);
+
+        /* call to write data here - it will work like 8051 sync logic for send */
+        write_to_wpan();
+
+        MAC_CTX().tx_cnt++;
+    }
+
+    TRACE_MSG(TRACE_MAC1, "<<zb_mac_put_data ret", (FMT__0));
+}
 
 void zb_mac_wait_for_ext_event()
 {
@@ -286,7 +311,7 @@ void zb_mac_wait_for_ext_event()
                      */
                     printf("%s\n", "error: received 0 bytes!");
                     TRACE_MSG(TRACE_MAC1, "read_from_wpan returns 0 bytes", (FMT__0));
-                    ZB_ABORT;
+                    WPAN_ABORT;
                 }
             }
             else if ( ret == 0 )

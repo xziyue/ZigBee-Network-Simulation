@@ -5,13 +5,12 @@
 #include "zb_nwk.h"
 #include "zb_aps.h"
 #include "zb_zdo.h"
+#include "settings_from_pipe.h"
 
 
-/*
 #ifndef ZB_TRANSPORT_USE_LINUX_WPAN
 #error "only runs in Linux WPAN mode"
 #endif
- */
 
 /*! \addtogroup ZB_TESTS */
 /*! @{ */
@@ -20,6 +19,8 @@ static void send_data(zb_buf_t *buf);
 #ifndef APS_RETRANSMIT_TEST
 void data_indication(zb_uint8_t param) ZB_CALLBACK;
 #endif
+
+#define PARAM_CHAR_SIZE 100
 
 /*
   ZR joins to ZC, then sends APS packet.
@@ -30,23 +31,36 @@ MAIN()
 {
   ARGV_UNUSED;
 
-#if !(defined KEIL || defined SDCC|| defined ZB_IAR)
-  if ( argc < 3 )
-  {
-    printf("%s <read pipe path> <write pipe path>\n", argv[0]);
-    return 0;
-  }
-#endif
+    // fetch config from pipe
+    void *params = read_and_parse_stdin();
 
-  /* Init device, load IB values from nvram or set it to default */
-#ifndef ZB8051
-  ZB_INIT("zdo_zr", argv[1], argv[2]);
-#else
-  ZB_INIT("zdo_zr", "2", "2");
-#endif
+    // fetch device address
+    load_item_into_buffer(params, "device-mac");
+    _eightbytes macAddress = get_ieee_addr_from_buffer();
+
+    // fetch wpan interface name
+    char *wpanName = malloc(PARAM_CHAR_SIZE);
+    load_item_into_buffer(params, "wpan-interface");
+    strcpy(wpanName, get_item_buffer());
+
+    // fetch device role
+    char *deviceRole = malloc(PARAM_CHAR_SIZE);
+    load_item_into_buffer(params, "device-role");
+    strcpy(deviceRole, get_item_buffer());
+
+    free_parsed_stdin(params);
+
+    if(strcmp(deviceRole, "router") != 0){
+        printf("%s\n", "this program must run as router!");
+        exit(1);
+    }
+
+    ZB_INIT("zdo_zr", wpanName);
+
 #ifdef ZB_SECURITY
   ZG->nwk.nib.security_level = 0;
 #endif
+
   /* FIXME: temporary, until neighbor table is not in nvram */
   /* add extended address of potential parent to emulate that we've already
    * been connected to it */

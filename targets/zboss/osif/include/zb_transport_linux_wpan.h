@@ -10,6 +10,8 @@
 #include <arpa/inet.h>
 #include <linux/if_packet.h>
 
+#define WPAN_ABORT exit(1)
+
 #define IEEE802154_ADDR_LEN 8
 #define MAX_PACKET_LEN 127
 
@@ -35,6 +37,7 @@ typedef struct zb_io_ctx_s
 
 }
 zb_io_ctx_t;
+
 
 
 #define ZB_TIMER_INIT() /* nothing to do here */

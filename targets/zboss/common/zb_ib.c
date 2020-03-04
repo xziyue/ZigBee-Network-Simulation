@@ -145,7 +145,28 @@ void zb_ib_set_defaults(zb_char_t *rx_pipe) ZB_CALLBACK
 #ifdef ZB_TRANSPORT_USE_LINUX_WPAN
 void zb_ib_set_defaults() ZB_CALLBACK
 {
+    ZB_AIB().aps_channel_mask = ZB_DEFAULT_APS_CHANNEL_MASK;
 
+    TRACE_MSG(TRACE_APS3, "aps_channel_mask 0x%x", (FMT__D, ZB_AIB().aps_channel_mask));
+
+    ZB_AIB().aps_insecure_join = 1;
+
+#ifdef ZB_SECURITY
+    ZG->nwk.nib.security_level = ZB_SECURITY_LEVEL;
+    ZG->nwk.nib.secure_all_frames = ZB_DEFAULT_SECURE_ALL_FRAMES;
+
+
+#if defined ZB_TC_GENERATES_KEYS && defined ZB_COORDINATOR_ROLE
+    secur_generate_keys();
+#endif  /* ZB_TC_GENERATES_KEYS */
+
+#endif  /* security */
+
+#ifdef ZB_ROUTER_ROLE
+    MAC_PIB().mac_rx_on_when_idle = 1;
+    ZG->nwk.nib.max_children = ZB_DEFAULT_MAX_CHILDREN;
+#endif
+    ZB_NIB_DEVICE_TYPE() = ZB_NWK_DEVICE_TYPE_NONE;
 }
 #endif
 
