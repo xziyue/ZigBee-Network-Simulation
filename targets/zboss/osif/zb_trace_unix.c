@@ -192,11 +192,13 @@ void zb_trace_msg_unix(zb_char_t *format, zb_char_t *file_name, zb_int_t line_nu
   }
   ZB_TRACE_UNLOCK();
 #else
+  /*
   (void)file_name;
   (void)line_number;
   (void)level;
   (void)mask;
   (void)format;
+   */
 #endif
 }
 
