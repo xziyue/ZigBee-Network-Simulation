@@ -45,20 +45,20 @@ Once the config is changed, rerun cmake.
 
 To build with cmake manually:
 1. Create a build folder for cmake under the root directory and cd into
-the folder.
+the folder:
     ```shell script
     mkdir build
     cd build
     ```
-2. Run cmake to generate cmake cache.
+2. Run cmake to generate cmake cache (now only debug build is maintained):
     ```shell script
-    cmake ..
+    cmake .. -DCMAKE_BUILD_TYPE=Debug
     ```
-3. Build the entire project with cmake
+3. Build the entire project with cmake:
     ```
    cmake --build .
    ```
-   If you wish to build a specific target
+   If you wish to build a specific target:
    ```shell script
    cmake --build . --target zdo_startup
    ```
