@@ -75,7 +75,7 @@ void load_item_into_buffer(void *res, const char *item) {
     auto &mapObj = *reinterpret_cast<map_type*>(res);
     auto iter = mapObj.find(string{item});
     if(iter == mapObj.end()){
-        throw runtime_error{"accessing nonexistent key"};
+        throw runtime_error{string{"accessing nonexistent key: "} + item};
     }
     // copy the data into shared buffer
     strcpy(sharedBuffer.data(), iter->second.c_str());
@@ -121,5 +121,21 @@ unsigned short get_pan_id_from_buffer(){
     auto panStr = itemString.substr(2);
     ret = stoul(panStr, nullptr, 16);
 
+    return ret;
+}
+
+unsigned short get_ushort_from_buffer(){
+    auto res = stoul(get_item_buffer());
+    if(res > numeric_limits<unsigned short>::max()){
+        throw runtime_error("invalid unsigned short number");
+    }
+    return res;
+}
+
+in_addr_t get_ip_addr_from_buffer(){
+    auto ret = inet_addr(get_item_buffer());
+    if(ret == INADDR_NONE){
+        throw runtime_error{"ip conversion failed"};
+    }
     return ret;
 }

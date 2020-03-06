@@ -20,6 +20,23 @@
 #endif
 
 
+#ifdef ZB_WPAN_USE_802154
+#define ZB_WPAN_SOCK_ADDR_T sockaddr_ll
+#endif
+
+#ifdef ZB_WPAN_USE_UDP
+#define ZB_WPAN_SOCK_ADDR_T sockaddr_in
+#endif
+
+
+typedef struct _zb_init_params_{
+    char wpanName[100];
+    in_addr_t from_ip;
+    in_addr_t to_ip;
+    unsigned short sport;
+    unsigned short dport;
+} zb_init_params;
+
 typedef struct zb_io_ctx_s
 {
 #ifndef ZB_SNIFFER
@@ -32,11 +49,18 @@ typedef struct zb_io_ctx_s
     zb_uint16_t int_counter;
 
     int sd; // socket number
+    struct ZB_WPAN_SOCK_ADDR_T sll;
+
+#ifdef ZB_WPAN_USE_UDP
+    in_addr_t from_ip;
+    in_addr_t to_ip;
+    unsigned short sport;
+    unsigned short dport;
+#endif
 
     int timeout;
     int time_delta_rest_ms;
     int time_delta_rest_us;
-
 }
 zb_io_ctx_t;
 

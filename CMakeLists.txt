@@ -13,6 +13,32 @@ add_definitions(-DZB_PLATFORM_LINUX_PC32)
 # use linux wpan
 add_definitions(-DZB_TRANSPORT_USE_LINUX_WPAN)
 
+# other settings regarding wpan
+get_directory_property(DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS)
+
+list(FIND DirDefs "ZB_TRANSPORT_USE_LINUX_WPAN" _indexwpan)
+list(FIND DirDefs "ZB_TRANSPORT_USE_LINUX_PIPES" _indexpipe)
+
+# transport control variables
+set(ZB_USE_WPAN FALSE)
+set(ZB_USE_PIPE FALSE)
+
+if(${_indexwpan} GREATER -1)
+    message(STATUS "using Linux wpan mode")
+    set(ZB_USE_WPAN TRUE)
+elseif(${_indexpipe} GREATER -1)
+    message(STATUS "using Linux PIPE mode")
+    set(ZB_USE_PIPE TRUE)
+else()
+    message(FATAL_ERROR "Please specify a transport type!")
+endif()
+
+# extra settings for wpan
+if(${ZB_USE_WPAN})
+    #add_definitions(-DZB_WPAN_USE_802154) # use actual 802154 socket
+    add_definitions(-DZB_WPAN_USE_UDP) # using udp to emulate 802154
+endif()
+
 set(SHS_BINARY_DIR "${PROJECT_SOURCE_DIR}/lib")
 
 include_directories(include)
@@ -46,5 +72,8 @@ add_executable(test_settings_from_pipe source/test_settings_from_pipe.c)
 set_target_properties(test_settings_from_pipe PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${SmartHomeSim_SOURCE_DIR}/bin)
 target_link_libraries(test_settings_from_pipe settings_from_pipe)
+
+
+
 
 

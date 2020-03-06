@@ -340,6 +340,7 @@ void zb_buf_cut_right(zb_buf_t *zbbuf, zb_uint8_t size)
  */
 zb_void_t *zb_get_buf_tail(zb_buf_t *zbbuf, zb_uint8_t size)
 {
+  TRACE_MSG(TRACE_COMMON1, "zb_get_buf_tail buflen=%d offset=%hhu size=%hhu", (FMT__0, ZB_BUF_LEN(zbbuf), (zbbuf)->u.hdr.data_offset, size));
   ZB_ASSERT((zbbuf) && ZB_BUF_LEN(zbbuf) + (zbbuf)->u.hdr.data_offset + (size) <= ZB_IO_BUF_SIZE);
   return (void *)((zbbuf)->buf + (ZB_IO_BUF_SIZE - (size)));
 }

@@ -126,7 +126,7 @@ zb_mac_transport_hdr_t;
 
 
 #ifdef ZB_TRANSPORT_USE_LINUX_WPAN
-void zb_mac_transport_init(zb_char_t *wpanName);
+void zb_mac_transport_init(zb_init_params *params);
 #else
 #ifndef ZB_TRANSPORT_LINUX_SPIDEV
 void zb_mac_transport_init(zb_char_t *rpipe_path, zb_char_t *wpipe_path) ZB_SDCC_REENTRANT;

@@ -7,42 +7,70 @@
 #include "zb_ringbuffer.h"
 #include "zb_mac_transport.h"
 #include "zb_nwk.h"
+#include <linux/if_ether.h>
 #include <errno.h>
+#include <netinet/udp.h>
 
 
-void zb_mac_transport_init(zb_char_t *wpanName){
+void zb_mac_transport_init(zb_init_params *params){
     int ret, sd;
-    struct sockaddr_ll sll;
-    struct ifreq ifr;
 
     // initialize with default value
     ZIG->ioctx.sd = -1;
 
     /* Create AF_PACKET address family socket for the SOCK_RAW type */
+
+#ifdef ZB_WPAN_USE_802154
+    struct ifreq ifr;
     sd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_IEEE802154));
+#endif
+
+#ifdef ZB_WPAN_USE_UDP
+    sd = socket(AF_INET, SOCK_DGRAM, 0);
+#endif
+
     if (sd < 0) {
         perror("socket");
         WPAN_ABORT;
     }
 
+#ifdef ZB_WPAN_USE_802154
     /* Using a monitor interface here results in a bad FCS and two missing
      * bytes from payload, using the normal IEEE 802.15.4 interface here */
-    strncpy(ifr.ifr_name, wpanName, IFNAMSIZ);
+    strncpy(ifr.ifr_name, params->wpanName, IFNAMSIZ);
     ret = ioctl(sd, SIOCGIFINDEX, &ifr);
     if (ret < 0) {
         perror("ioctl");
         close(sd);
         WPAN_ABORT;
     }
+    printf("%s%d\n", "device index: ", ifr.ifr_ifindex);
+#endif
 
+    // zero out address
+    struct ZB_WPAN_SOCK_ADDR_T *sll = &ZIG->ioctx.sll;
+    memset(sll, 0, sizeof(struct ZB_WPAN_SOCK_ADDR_T));
+
+#ifdef ZB_WPAN_USE_802154
     /* Prepare destination socket address struct */
-    memset(&sll, 0, sizeof(sll));
-    sll.sll_family = AF_PACKET;
-    sll.sll_ifindex = ifr.ifr_ifindex;
-    sll.sll_protocol = htons(ETH_P_IEEE802154);
+    sll->sll_family = AF_PACKET;
+    sll->sll_ifindex = ifr.ifr_ifindex;
+    sll->sll_halen = ETH_ALEN;
+    sll->sll_protocol = htons(ETH_P_IEEE802154);
+#endif
+
+#ifdef ZB_WPAN_USE_UDP
+    ZIG->ioctx.from_ip = params->from_ip;
+    ZIG->ioctx.to_ip = params->to_ip;
+    ZIG->ioctx.dport = params->dport;
+    ZIG->ioctx.sport = params->sport;
+    sll->sin_family = AF_INET;
+    sll->sin_addr.s_addr = ZIG->ioctx.from_ip;
+    sll->sin_port = htons(ZIG->ioctx.sport);
+#endif
 
     /* Bind socket on this side */
-    ret = bind(sd, (struct sockaddr *)&sll, sizeof(sll));
+    ret = bind(sd, (struct sockaddr *)sll, sizeof(struct ZB_WPAN_SOCK_ADDR_T));
     if (ret < 0) {
         perror("bind");
         close(sd);
@@ -57,6 +85,7 @@ void zb_mac_transport_init(zb_char_t *wpanName){
 
     ZB_TIMER_INIT();
 }
+
 
 
 void zb_mac_transport_start_recv(zb_buf_t *buf, zb_short_t dummy){
@@ -97,11 +126,26 @@ zb_ret_t read_from_wpan(){
     }
 
     if ( !ZB_BUF_LEN(ZIG->ioctx.recv_data_buf) ){
-        zb_uint8_t *ptr = NULL;
-        ZB_BUF_INITIAL_ALLOC(ZIG->ioctx.recv_data_buf, MAX_PACKET_LEN + 1, ptr);
+        char recvBuf[MAX_PACKET_LEN];
 
         // read data from socket
-        bts_read = recv(ZIG->ioctx.sd, ZB_BUF_BEGIN(ZIG->ioctx.recv_data_buf) + 1, MAX_PACKET_LEN, 0);
+#ifdef ZB_WPAN_USE_802154
+        bts_read = recv(ZIG->ioctx.sd, recvBuf, MAX_PACKET_LEN, 0);
+#endif
+
+#ifdef ZB_WPAN_USE_UDP
+
+        struct ZB_WPAN_SOCK_ADDR_T inAddr;
+        inAddr.sin_family = AF_INET;
+        inAddr.sin_port = htons(ZIG->ioctx.sport);
+        inAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+        socklen_t addrLen = sizeof(struct ZB_WPAN_SOCK_ADDR_T);
+
+        // read into recvBuf first
+        bts_read = recvfrom(ZIG->ioctx.sd, recvBuf, MAX_PACKET_LEN, 0, (struct sockaddr *)&inAddr, &addrLen);
+#endif
+
         if(bts_read > MAX_PACKET_LEN){
             printf("%s\n", "packet received from WPAN is larger than MAX_PACKET_LEN");
             WPAN_ABORT;
@@ -112,26 +156,33 @@ zb_ret_t read_from_wpan(){
             WPAN_ABORT;
         }
 
+        // allocate buffer
+        zb_uint8_t *ptr = NULL;
+        ZB_BUF_INITIAL_ALLOC(ZIG->ioctx.recv_data_buf, bts_read + 1, ptr);
+
+        // copy from recvBuf to actual buffer
+        memcpy(ZB_BUF_BEGIN(ZIG->ioctx.recv_data_buf) + 1, recvBuf, bts_read);
+
         // set the first byte to packet length
         *(unsigned char*)ZB_BUF_BEGIN(ZIG->ioctx.recv_data_buf) = (unsigned char)bts_read;
 
         TRACE_MSG(TRACE_MAC1, "received packet from wpan (len: %d)", (FMT__D, bts_read));
 
+#ifdef ZB_NS_BUILD
+        {
+            // simulate hardware behavior on RX
+            zb_uint8_t *p;
+            /* If got data from ns-3, imitate UZ trailer (9b) */
+            ZB_BUF_ALLOC_RIGHT(ZIG->ioctx.recv_data_buf, ZB_MAC_EXTRA_DATA_SIZE, p);
+
+            /* imitate 9b of LQI, RSSI, Frame timer, Superframe counter */
+            ZB_MEMSET(p, 0, ZB_MAC_EXTRA_DATA_SIZE);
+        }
+#endif
+
         ZIG->ioctx.recv_data_buf = NULL;
         ZB_MAC_STOP_IO();
     }
-
-#ifdef ZB_NS_BUILD
-    {
-        // simulate hardware behavior on RX
-        zb_uint8_t *p;
-        /* If got data from ns-3, imitate UZ trailer (9b) */
-        ZB_BUF_ALLOC_RIGHT(ZIG->ioctx.recv_data_buf, ZB_MAC_EXTRA_DATA_SIZE, p);
-
-        /* imitate 9b of LQI, RSSI, Frame timer, Superframe counter */
-        ZB_MEMSET(p, 0, ZB_MAC_EXTRA_DATA_SIZE);
-    }
-#endif
 
     if ( bts_read ){
         ret = bts_read;
@@ -150,8 +201,23 @@ zb_ret_t write_to_wpan()
 
     if ( ZIG->ioctx.send_data_buf )
     {
+
+        TRACE_MSG(TRACE_MAC1, "writing to wpan data length: %d", (FMT__D, ZB_BUF_LEN(ZIG->ioctx.send_data_buf)));
+#ifdef ZB_WPAN_USE_802154
         // send data thru socket
         bts_written = send(ZIG->ioctx.sd, ZB_BUF_BEGIN(ZIG->ioctx.send_data_buf), ZB_BUF_LEN(ZIG->ioctx.send_data_buf), 0);
+#endif
+#ifdef ZB_WPAN_USE_UDP
+        struct ZB_WPAN_SOCK_ADDR_T addr;
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = ZIG->ioctx.to_ip;
+        addr.sin_port = htons(ZIG->ioctx.dport);
+
+        bts_written = sendto(ZIG->ioctx.sd, ZB_BUF_BEGIN(ZIG->ioctx.send_data_buf),
+                ZB_BUF_LEN(ZIG->ioctx.send_data_buf), 0, (struct sockaddr *)&addr,
+                sizeof(struct ZB_WPAN_SOCK_ADDR_T));
+#endif
+
 
         if(bts_written < 0){
             perror("error when reading from socket");

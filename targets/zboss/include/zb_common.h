@@ -88,8 +88,8 @@ PURPOSE: Common include file for ZigBee
 
 #ifdef ZB_TRANSPORT_USE_LINUX_WPAN
 
-void zb_init(zb_char_t* trace_comment, zb_char_t *wpanName);
-#define ZB_INIT(a,b) zb_init((zb_char_t *)a, (zb_char_t *)b)
+void zb_init(zb_char_t* trace_comment, zb_init_params *wpanName);
+#define ZB_INIT(a,b) zb_init((zb_char_t *)a, (zb_init_params *)b)
 
 #else
 

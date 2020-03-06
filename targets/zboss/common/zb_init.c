@@ -77,7 +77,7 @@ ZB_SDCC_XDATA zb_64bit_addr_t g_zero_addr={0,0,0,0,0,0,0,0};
 
 #ifdef ZB_TRANSPORT_USE_LINUX_WPAN
 // different zb_init call if using WPAN
-void zb_init(zb_char_t *trace_comment, zb_char_t *wpanName) ZB_CALLBACK
+void zb_init(zb_char_t *trace_comment, zb_init_params *params) ZB_CALLBACK
 #else
 void zb_init(zb_char_t *trace_comment, zb_char_t *rx_pipe, zb_char_t *tx_pipe) ZB_CALLBACK
 #endif
@@ -131,7 +131,7 @@ void zb_init() ZB_CALLBACK
 
 #ifdef ZB_TRANSPORT_USE_LINUX_WPAN
   // wpan MAC initialization
-  zb_mac_transport_init(wpanName);
+  zb_mac_transport_init(params);
 #else
   zb_mac_transport_init(rx_pipe, tx_pipe);
 #endif

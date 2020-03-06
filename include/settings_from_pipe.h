@@ -1,6 +1,9 @@
 #ifndef FILE_SETTINGS_FROM_PIPE_H
 #define FILE_SETTINGS_FROM_PIPE_H
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #ifdef __cplusplus
 #define CPPEXTERN extern "C"
 #else
@@ -37,5 +40,9 @@ typedef struct _d_eightbytes{
 CPPEXTERN _eightbytes get_ieee_addr_from_buffer();
 
 CPPEXTERN unsigned short get_pan_id_from_buffer();
+
+CPPEXTERN unsigned short get_ushort_from_buffer();
+
+CPPEXTERN in_addr_t get_ip_addr_from_buffer();
 
 #endif

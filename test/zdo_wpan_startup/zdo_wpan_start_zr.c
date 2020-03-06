@@ -31,6 +31,8 @@ MAIN()
 {
   ARGV_UNUSED;
 
+    zb_init_params zbParams;
+
     // fetch config from pipe
     void *params = read_and_parse_stdin();
 
@@ -39,14 +41,32 @@ MAIN()
     _eightbytes macAddress = get_ieee_addr_from_buffer();
 
     // fetch wpan interface name
-    char *wpanName = malloc(PARAM_CHAR_SIZE);
     load_item_into_buffer(params, "wpan-interface");
-    strcpy(wpanName, get_item_buffer());
+    strcpy(zbParams.wpanName, get_item_buffer());
 
     // fetch device role
     char *deviceRole = malloc(PARAM_CHAR_SIZE);
     load_item_into_buffer(params, "device-role");
     strcpy(deviceRole, get_item_buffer());
+
+
+#ifdef ZB_WPAN_USE_UDP
+    // fetch source ip
+    load_item_into_buffer(params, "from-ip");
+    zbParams.from_ip = get_ip_addr_from_buffer();
+
+    // fetch dst ip
+    load_item_into_buffer(params, "to-ip");
+    zbParams.to_ip = get_ip_addr_from_buffer();
+
+    // fetch dport
+    load_item_into_buffer(params, "udp-dport");
+    zbParams.dport = get_ushort_from_buffer();
+
+    // fetch sport
+    load_item_into_buffer(params, "udp-sport");
+    zbParams.sport = get_ushort_from_buffer();
+#endif
 
     free_parsed_stdin(params);
 
@@ -55,7 +75,7 @@ MAIN()
         exit(1);
     }
 
-    ZB_INIT("zdo_zr", wpanName);
+    ZB_INIT("zdo_zr", &zbParams);
 
 #ifdef ZB_SECURITY
   ZG->nwk.nib.security_level = 0;
