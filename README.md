@@ -6,8 +6,9 @@
 - [x] Port ZBOSS to CMake
 - [x] Test `zdo_startup` and fix Wireshark compatibility
 - [x] Migrate the project to 64 bit
-- [ ] Provide Linux WPAN support
+- [x] Provide Linux WPAN support
 - [ ] Inter-machine WPAN backend
+- [x] Inter-machine UDP backend
 - [ ] Write ZigBee device
 - [ ] More realistic simulation using docker
 - [ ] Device UI
